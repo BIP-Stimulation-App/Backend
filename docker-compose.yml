@@ -1,0 +1,18 @@
+version: "3.4"
+
+services:
+  api:
+    image: "temptica/stimulation-app-api"
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+  db:
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
+    ports:
+      - "1433:1433"
+
+    environment:
+      MSSQL_SA_PASSWORD: "SuperPassword!"
+      ACCEPT_EULA: "Y"

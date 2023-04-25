@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using StimulationAppAPI.DAL.Model;
 
+
 namespace StimulationAppAPI.DAL.Context
 {
     public class UserContext : DbContext
@@ -22,34 +23,8 @@ namespace StimulationAppAPI.DAL.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-            //User[] users = 
-            //{
-            //    new()
-            //    {
-            //        UserName = "Nicolas", FirstName = "Nicolas", LastName = "Vanruysseveldt",
-            //        Email = "nic.vanruy@gmail.com", Role = "Admin"
-            //    },
-            //    new()
-            //    {
-            //        UserName = "Joske", FirstName = "Joske", LastName = "Peeters",
-            //        Email = "Joske.Peeters@gmail.com", Role = "User"
-            //    }
-
-            //};
-            //UserLogin[] logins =
-            //{
-            //    new()
-            //    {
-            //        UserName = "Nicolas",
-            //        Password = "Test123"
-            //    },
-            //    new()
-            //    {
-            //        UserName = "Joske", Password = "Test123"
-            //    }
-            //};
-            modelBuilder.Entity<User>()/*.HasData(users)*/;
-            modelBuilder.Entity<UserLogin>()/*.HasData(logins)*/;
+            modelBuilder.Entity<User>();
+            modelBuilder.Entity<UserLogin>();
             modelBuilder.Entity<PasswordReset>();
             modelBuilder.Entity<Salt>();
             base.OnModelCreating(modelBuilder);
