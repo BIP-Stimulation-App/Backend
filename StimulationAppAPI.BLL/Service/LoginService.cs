@@ -25,7 +25,7 @@ namespace StimulationAppAPI.BLL.Service
             var salted = new Salt();
             HashPassword(login, salted);
             _context.Logins.Add(login);
-            _context.salts.Add(salted);
+            _context.Salts.Add(salted);
             _context.SaveChanges();
             return login;
         }
@@ -40,7 +40,7 @@ namespace StimulationAppAPI.BLL.Service
                 return login;
             }
             
-            var salt = _context.salts.Find(creds.UserName)!;
+            var salt = _context.Salts.Find(creds.UserName)!;
             var correct = VerifyPassword(login.Password, creds.Password, salt.PasswordSalt);
 
             if (!correct)
@@ -89,10 +89,10 @@ namespace StimulationAppAPI.BLL.Service
             result.Password = login.Password;
             try
             {
-                var salted = _context.salts.Find(login.UserName)!;
+                var salted = _context.Salts.Find(login.UserName)!;
                 HashPassword(result, salted);
                 _context.Logins.Update(login);
-                _context.salts.Update(salted);
+                _context.Salts.Update(salted);
                 _context.SaveChanges();
 
                 return result;

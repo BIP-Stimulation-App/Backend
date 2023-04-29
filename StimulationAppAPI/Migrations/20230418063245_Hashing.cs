@@ -38,7 +38,7 @@ namespace StimulationAppAPI.Migrations
                 oldType: "varchar(100)");
 
             migrationBuilder.CreateTable(
-                name: "salts",
+                name: "Salts",
                 columns: table => new
                 {
                     UserName = table.Column<string>(type: "varchar(30)", nullable: false),

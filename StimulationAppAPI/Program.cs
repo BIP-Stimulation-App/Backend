@@ -40,6 +40,8 @@ builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<UserController>();
 builder.Services.AddScoped<LoginController>();
+builder.Services.AddScoped<MedicationService>();
+builder.Services.AddScoped<MedicationController>();
 
 EmailConfiguration.Email = builder.Configuration["EmailConfiguration:Email"];
 EmailConfiguration.Name = builder.Configuration["EmailConfiguration:Name"];
@@ -122,7 +124,7 @@ using (var scope = app.Services.CreateScope())
     Console.WriteLine("starting db migration: ");
     if (context.Database.GetPendingMigrations().Any())
     {
-        context.Database.Migrate();
+        //context.Database.Migrate();
     }
 }
 app.Run();

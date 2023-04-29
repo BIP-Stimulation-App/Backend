@@ -12,17 +12,48 @@ using StimulationAppAPI.DAL.Context;
 namespace StimulationAppAPI.Migrations
 {
     [DbContext(typeof(UserContext))]
-    [Migration("20230418063245_Hashing")]
-    partial class Hashing
+    [Migration("20230429131352_Medecine")]
+    partial class Medecine
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.1")
+                .HasAnnotation("ProductVersion", "6.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("StimulationAppAPI.DAL.Model.Medication", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<short>("Frequency")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("DATE");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("varchar(30)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Medication");
+                });
 
             modelBuilder.Entity("StimulationAppAPI.DAL.Model.PasswordReset", b =>
                 {
