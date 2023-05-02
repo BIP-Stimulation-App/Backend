@@ -8,13 +8,13 @@ pipeline {
         }
          stage('Build') {
                         steps {
-                                sh 'sudo docker rmi temptica/stimulation-app-api'
+                                sh 'docker rmi temptica/stimulation-app-api'
                         }
                 }
                 stage('Deploy') {
                         steps {
                             dir('StimulationApp'){
-                                sh 'sudo docker compose build'
+                                sh 'docker compose build'
                             }
                         }
                 }
