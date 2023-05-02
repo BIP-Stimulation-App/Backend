@@ -30,6 +30,11 @@ namespace StimulationAppAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<string>("Dependence")
+                        .IsRequired()
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("UserName");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("varchar(100)");
@@ -44,19 +49,17 @@ namespace StimulationAppAPI.Migrations
                     b.Property<DateTime>("Time")
                         .HasColumnType("DATE");
 
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("varchar(30)");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("Dependence");
 
                     b.ToTable("Medication");
                 });
 
             modelBuilder.Entity("StimulationAppAPI.DAL.Model.PasswordReset", b =>
                 {
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("UserName")
+                        .HasColumnType("varchar(30)");
 
                     b.Property<DateTime>("ExpirationTime")
                         .HasColumnType("datetime2");
@@ -65,7 +68,7 @@ namespace StimulationAppAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Email");
+                    b.HasKey("UserName");
 
                     b.ToTable("PasswordResets");
                 });
@@ -122,6 +125,66 @@ namespace StimulationAppAPI.Migrations
                     b.HasKey("UserName");
 
                     b.ToTable("Login");
+                });
+
+            modelBuilder.Entity("StimulationAppAPI.DAL.Model.Medication", b =>
+                {
+                    b.HasOne("StimulationAppAPI.DAL.Model.User", "User")
+                        .WithMany("Medications")
+                        .HasForeignKey("Dependence")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("StimulationAppAPI.DAL.Model.PasswordReset", b =>
+                {
+                    b.HasOne("StimulationAppAPI.DAL.Model.UserLogin", "UserLogin")
+                        .WithOne("PasswordReset")
+                        .HasForeignKey("StimulationAppAPI.DAL.Model.PasswordReset", "UserName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserLogin");
+                });
+
+            modelBuilder.Entity("StimulationAppAPI.DAL.Model.Salt", b =>
+                {
+                    b.HasOne("StimulationAppAPI.DAL.Model.UserLogin", "UserLogin")
+                        .WithOne("Salt")
+                        .HasForeignKey("StimulationAppAPI.DAL.Model.Salt", "UserName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserLogin");
+                });
+
+            modelBuilder.Entity("StimulationAppAPI.DAL.Model.UserLogin", b =>
+                {
+                    b.HasOne("StimulationAppAPI.DAL.Model.User", "User")
+                        .WithOne("Login")
+                        .HasForeignKey("StimulationAppAPI.DAL.Model.UserLogin", "UserName")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("StimulationAppAPI.DAL.Model.User", b =>
+                {
+                    b.Navigation("Login")
+                        .IsRequired();
+
+                    b.Navigation("Medications");
+                });
+
+            modelBuilder.Entity("StimulationAppAPI.DAL.Model.UserLogin", b =>
+                {
+                    b.Navigation("PasswordReset");
+
+                    b.Navigation("Salt")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

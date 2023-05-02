@@ -1,60 +1,77 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StimulationAppAPI.BLL.Service;
 using StimulationAppAPI.BLL.Interface;
 using StimulationAppAPI.DAL.Model;
+using StimulationAppAPI.DAL.Model.Request;
 
 namespace StimulationAppAPI.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+    [ApiController, Authorize]
     public class MedicationController : ControllerBase
     {
-        IMedicationService _medicationService;
+        private readonly IMedicationService _medicationService;
+        private readonly IUserService _userService;
 
-        public MedicationController(MedicationService medicationService)
+        public MedicationController(MedicationService medicationService, UserService userService)
         {
             _medicationService = medicationService;
+            _userService = userService;
         }
 
         [HttpGet]
-        public IActionResult GetMedications()
+        public IActionResult GetMedications()//returns a NewMedication list
         {
-            return Ok(_medicationService.GetUserMedications(GetCurrentUser()!));
+            var user = GetCurrentUser()!.UserName;
+            var newMedications = new List<NewMedication>();
+            newMedications = _medicationService.GetMedications(user).Select(u => new NewMedication(u)).ToList();
+            return Ok(newMedications);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetMedicationById([FromRoute] int id) //returns NotFound or NewMedication
+        {
+            var medication = GetCurrentUser()!.Medications.FirstOrDefault(med => med.Id == id);
+            return medication is null? NotFound(): Ok(new NewMedication(medication));
         }
 
         [HttpPost]
-        public IActionResult AddMedication([FromBody]Medication medication)
+        public IActionResult AddMedication([FromBody]NewMedication newMedication)
         {
-            medication.UserName = GetCurrentUser()!;
+            var user = GetCurrentUser()!;
+            user.Medications ??= new List<Medication>();
+            user.Medications.Add(new Medication(newMedication));
             try
             {
-                _medicationService.AddMedication(medication);
+                _userService.UpdateUser(user);
                 return Ok();
             }
             catch(Exception e)
             {
                 return Problem(e.Message);
             }
-        }
+        } //returns OK or Error
 
-        [HttpDelete]
-        public IActionResult DeleteMedication([FromBody] Medication medication)
+        [HttpDelete("{id}")]
+        public IActionResult DeleteMedication([FromRoute]int id) //returns not found, forbid, Ok or problem
         {
-            medication.UserName = GetCurrentUser()!;
+            var user = GetCurrentUser()!;
             try
             {
-                var result = _medicationService.GetById(medication.Id);
+                var result = _medicationService.GetById(id);
                 if (result is null)
                 {
-                    NotFound();
+                    return NotFound();
                 }
-                if (!string.Equals(result.UserName, medication.UserName, StringComparison.CurrentCultureIgnoreCase))
+                if (result.Dependence!= user.UserName)
                 {
                     return Forbid("You do not own this medication");
                 }
-                _medicationService.RemoveMedication(medication.Id);
+                user.Medications.Remove(result);
+                _userService.UpdateUser(user);
                 return Ok();
             }
             catch (Exception e)
@@ -62,12 +79,12 @@ namespace StimulationAppAPI.Controllers
                 return Problem(e.Message);
             }
         }
-
-        private string? GetCurrentUser()
+        
+        private User? GetCurrentUser()
         {
             if (HttpContext.User.Identity is not ClaimsIdentity identity) return null;
             var userClaims = identity.Claims;
-            return userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value;
+            return _userService.GetUser(userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value!);
 
         }
 

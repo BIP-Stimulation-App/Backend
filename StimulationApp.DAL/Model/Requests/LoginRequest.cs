@@ -6,16 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StimulationAppAPI.DAL.Model
+namespace StimulationAppAPI.DAL.Model.Requests
 {
-    public class Salt
+    public class LoginRequest
     {
-        [Key]
         [Required, Column(TypeName = "varchar(30)")]
         public string UserName { get; set; }
-        [Required, Column(TypeName = "VARBINARY(MAX)")]
-        public byte[] PasswordSalt { get; set; }
-        [Required]
-        public UserLogin UserLogin { get; set; }
+        [Required, Column(TypeName = "varchar(250)")]
+        public string Password { get; set; }
     }
 }

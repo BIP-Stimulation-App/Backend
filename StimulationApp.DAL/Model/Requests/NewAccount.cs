@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StimulationAppAPI.DAL.Model
+namespace StimulationAppAPI.DAL.Model.Requests
 {
     public class NewAccount
     {
@@ -13,7 +13,7 @@ namespace StimulationAppAPI.DAL.Model
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        
+
 
     }
 

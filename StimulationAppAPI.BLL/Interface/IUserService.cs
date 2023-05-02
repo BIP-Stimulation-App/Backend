@@ -9,7 +9,6 @@ namespace StimulationAppAPI.BLL.Interface
 {
     public interface IUserService
     {
-        public User? GetUser(string firstname, string lastname);
         public User? GetUser(string username);
         public User? GetUserByMail(string email);
         public bool UsernameInUse(string username);

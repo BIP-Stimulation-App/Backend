@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using StimulationAppAPI.BLL.Interface;
 using StimulationAppAPI.DAL.Context;
 using StimulationAppAPI.DAL.Model;
+using StimulationAppAPI.DAL.Model.Requests;
 
 namespace StimulationAppAPI.BLL.Service
 {
@@ -22,49 +23,31 @@ namespace StimulationAppAPI.BLL.Service
         }
         public UserLogin AddLogin(UserLogin login)
         {
-            var salted = new Salt();
-            HashPassword(login, salted);
-            _context.Logins.Add(login);
-            _context.Salts.Add(salted);
-            _context.SaveChanges();
+            HashPassword(login);
             return login;
         }
         
-        public UserLogin? Validate(UserLogin login)
+        public UserLogin Validate(LoginRequest login)
         {
-            var creds = _context.Logins.Find(login.UserName);
+            
+            var creds = _context.Logins.FirstOrDefault(l => l.UserName == login.UserName);
             if (creds is null)
             {
-                login.UserName = "";
-                login.Password = "";
-                return login;
+                return new UserLogin()
+                {
+                    Password = "",
+                    UserName = ""
+                };
             }
             
-            var salt = _context.Salts.Find(creds.UserName)!;
+            var salt = _context.Salts.First(s => s.UserName == creds.UserName);
             var correct = VerifyPassword(login.Password, creds.Password, salt.PasswordSalt);
 
             if (!correct)
             {
                 login.Password = "";
             }
-            return correct  ? creds : login;
-        }
-        
-        public UserLogin? Delete(UserLogin login)
-        {
-            var correctLogin = Validate(login);
-            if (correctLogin is null) return null;
-
-            _context.Logins.Remove(correctLogin);
-            _context.SaveChanges();
-            return correctLogin;
-        }
-
-        public UserLogin? Update(UserLogin login)
-        {
-            if (Validate(login) is null) return null;
-            _context.Logins.Update(login);
-            return login;
+            return creds;
         }
 
         public User? GetCorrespondingUser(UserLogin login)
@@ -84,15 +67,14 @@ namespace StimulationAppAPI.BLL.Service
 
         public UserLogin? ChangePassword(UserLogin login)
         {
-            var result = GetUserLogin(login.UserName);
+            var result = GetUserLogin(login.User.UserName);
             if (result is null) return null;
             result.Password = login.Password;
             try
             {
-                var salted = _context.Salts.Find(login.UserName)!;
+                var salted = _context.Salts.Find(login.User.UserName)!;
                 HashPassword(result, salted);
                 _context.Logins.Update(login);
-                _context.Salts.Update(salted);
                 _context.SaveChanges();
 
                 return result;
@@ -107,7 +89,7 @@ namespace StimulationAppAPI.BLL.Service
         {
             var user = _context.Users.FirstOrDefault(user => user.Email == email);
             if (user == default) return null;
-            var result = _context.PasswordResets.FirstOrDefault(reset => reset.Email == email);
+            var result = _context.PasswordResets.FirstOrDefault(reset => reset.UserLogin.User.Email == email);
             if (result != default)
             {
                 if (DateTime.Compare(result.ExpirationTime, DateTime.Now) < 0)
@@ -115,7 +97,7 @@ namespace StimulationAppAPI.BLL.Service
                     _context.PasswordResets.Remove(result);
                     var newReset = new PasswordReset()
                     {
-                        Email = email,
+                        UserLogin = user.Login,
                         ExpirationTime = DateTime.Now.AddMinutes(15),
                         Token = GenerateRandomToken()
                     };
@@ -128,7 +110,7 @@ namespace StimulationAppAPI.BLL.Service
             }
             var reset = new PasswordReset()
             {
-                Email = email,
+                UserLogin = user.Login,
                 ExpirationTime = DateTime.Now.AddMinutes(15),
                 Token = GenerateRandomToken()
             };
@@ -147,7 +129,7 @@ namespace StimulationAppAPI.BLL.Service
                 {
                     _context.PasswordResets.Remove(result);
                     _context.SaveChanges();
-                    return _context.Users.FirstOrDefault(user => user.Email == result.Email);
+                    return _context.Users.FirstOrDefault(user => user.Email == result.UserLogin.User.Email);
                 }
             }
             return null;
@@ -183,22 +165,27 @@ namespace StimulationAppAPI.BLL.Service
         const int KeySize = 64;
         const int Iterations = 350000;
         readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA512;
-        private void HashPassword(UserLogin login, Salt salted)
+        private void HashPassword(UserLogin login, Salt? salt = null)
         {
-            if (salted.PasswordSalt is null || salted.PasswordSalt.Length == 0)
+            login.Salt = salt;
+            if (login.Salt is null || login.Salt.PasswordSalt.Length == 0)
             {
-                salted.PasswordSalt = RandomNumberGenerator.GetBytes(KeySize);
-                salted.UserName = login.UserName;
+                login.Salt = new Salt
+                {
+                    PasswordSalt = RandomNumberGenerator.GetBytes(KeySize),
+                    UserName = login.User.UserName
+                };
             }
             var hash = Rfc2898DeriveBytes.Pbkdf2(
                 Encoding.UTF8.GetBytes(login.Password),
-                salted.PasswordSalt,
+                login.Salt.PasswordSalt,
                 Iterations,
                 _hashAlgorithm,
                 KeySize);
             login.Password = Convert.ToHexString(hash);
         }
-        bool VerifyPassword(string password, string hash, byte[] salt)
+
+        private bool VerifyPassword(string password, string hash, byte[] salt)
         {
             var hashToCompare = Rfc2898DeriveBytes.Pbkdf2(password, salt, Iterations, _hashAlgorithm, KeySize);
             return hashToCompare.SequenceEqual(Convert.FromHexString(hash));

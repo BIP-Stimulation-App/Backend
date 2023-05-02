@@ -18,33 +18,14 @@ namespace StimulationAppAPI.BLL.Service
             _context = context;
         }
 
-        public Medication AddMedication(Medication medication)
-        {
-            _context.Medications.Add(medication);
-            _context.SaveChanges();
-            return medication;
-        }
-
-        public List<Medication> GetUserMedications(string username)
-        {
-            return _context.Medications.Where(m => m.UserName == username).ToList();
-        }
-
         public Medication? GetById(int id)
         {
             return _context.Medications.Find(id);
         }
 
-        public Medication? RemoveMedication(int id)
+        public ICollection<Medication> GetMedications(string username)
         {
-            var result = GetById(id);
-            if (result is null)
-            {
-                return null;
-            }
-            _context.Remove(result);
-            _context.SaveChanges();
-            return result;
+            return _context.Medications.Where(m => m.Dependence == username).ToArray();
         }
     }
 }

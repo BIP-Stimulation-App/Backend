@@ -68,7 +68,6 @@ namespace StimulationAppAPI.BLL.Service
                 return null;
             }
         }
-        
         public User? UpdateUser(User user)
         {
             try

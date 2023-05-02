@@ -3,31 +3,35 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StimulationAppAPI.BLL.Interface;
 using StimulationAppAPI.BLL.Service;
+using StimulationAppAPI.DAL.Model.Requests;
 
 namespace StimulationAppAPI.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+    [ApiController, Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
     {
         private readonly IUserService _userService;
         public AdminController(UserService userService)
         {
             _userService = userService;
-            
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
         public IActionResult GetUsers()
         {
-            return Ok(_userService.GetUsers());
-        }
+            var newResult = _userService.GetUsers();
+
+            var newUserList = newResult.Select(item => new UserResponds(item)).ToList();
+            return Ok(newUserList);
+        } //returns all users as UserRespond list
         [HttpGet("{userName}")]
-        [Authorize(Roles = "Admin")]
         public IActionResult GetUsers(string userName)
         {
-            return Ok(_userService.GetUser(userName));
-        }
+            var result = _userService.GetUser(userName);
+            if (result is null) return NotFound();
+            result.Login = new();//removes important data
+            return Ok(new UserResponds(_userService.GetUser(userName)));
+        } //returns given user as UserRespond
     }
 }

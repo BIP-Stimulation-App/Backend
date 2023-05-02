@@ -9,10 +9,8 @@ namespace StimulationAppAPI.BLL.Interface
 {
     public interface IMedicationService
     {
-        public Medication AddMedication(Medication medication);
-        public List<Medication> GetUserMedications(string username);
         public Medication? GetById(int id);
-        public Medication? RemoveMedication(int id);
+        public ICollection<Medication> GetMedications(string username);
 
     }
 }

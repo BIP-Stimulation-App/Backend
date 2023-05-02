@@ -7,11 +7,12 @@ using StimulationAppAPI.DAL.Model;
 using StimulationAppAPI.BLL.Interface;
 using StimulationAppAPI.BLL.Service;
 using StimulationAppAPI.DAL.Context;
+using StimulationAppAPI.DAL.Model.Requests;
 
 namespace StimulationAppAPI.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+    [ApiController, Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -24,12 +25,11 @@ namespace StimulationAppAPI.Controllers
         #region User Own Data
 
         [HttpGet]
-        [Authorize]
         public IActionResult GetUser()
         {
             try
             {
-                return Ok(GetCurrentUser());
+                return Ok(new UserResponds(GetCurrentUser()!));
             }
             catch
             {
@@ -38,10 +38,15 @@ namespace StimulationAppAPI.Controllers
         }
 
         [HttpPut]
-        public IActionResult UpdateUser([FromBody]User user)
+        public IActionResult UpdateUser([FromBody]UserResponds updatedUser)
         {
-            var result = _userService.UpdateUser(user);
-            return result is null ? NotFound() : Ok(result);
+            var oldUser = GetCurrentUser()!;
+            oldUser.UserName = updatedUser.UserName;
+            oldUser.FirstName = updatedUser.FirstName;
+            oldUser.LastName = updatedUser.LastName;
+            oldUser.Email = updatedUser.Email;
+            var result = _userService.UpdateUser(oldUser);
+            return result is null ? NotFound() : Ok(new UserResponds(result));
         }
 
         [HttpPut("UpdateEmail")]
@@ -53,9 +58,23 @@ namespace StimulationAppAPI.Controllers
         #endregion
 
         [HttpGet("UsernameInUse/{username}")]
+        [AllowAnonymous]
         public IActionResult UsernameInUse([FromRoute] string username)
         {
             return _userService.UsernameInUse(username)?Ok("Username is not in use."): Ok("Username is already in use.");
+        }
+
+        [HttpDelete("Remove")]
+        public IActionResult RemoveAccount()
+        {
+
+            var current = GetCurrentUser();
+            if (current is null)
+            {
+                return Unauthorized();
+            }
+            _userService.Delete(current.UserName);
+            return Ok();
         }
 
         private User? GetCurrentUser()

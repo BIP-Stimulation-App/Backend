@@ -1,4 +1,4 @@
-﻿namespace StimulationAppAPI
+﻿namespace StimulationAppAPI.DAL.Model
 {
     public static class EmailConfiguration
     {

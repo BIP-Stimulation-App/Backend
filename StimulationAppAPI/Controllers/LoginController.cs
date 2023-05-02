@@ -12,6 +12,7 @@ using StimulationAppAPI.DAL.Model;
 using MailKit.Net.Smtp;
 using MailKit;
 using MimeKit;
+using StimulationAppAPI.DAL.Model.Requests;
 
 namespace StimulationAppAPI.Controllers
 {
@@ -32,14 +33,14 @@ namespace StimulationAppAPI.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult Login([FromBody] UserLogin userLogin)
+        public IActionResult Login([FromBody] LoginRequest userLogin) //returns token
         {
             try
             {
                 var validation = _loginService.Validate(userLogin);
                 if (validation is null)
                 {
-                    return Problem("I don't know how you did this but you manage to cause an impossible error! Cudos to you!");
+                    return Problem("I don't know how you did this but you manage to cause an impossible error! Kudos to you!");
                 }
 
                 if (validation.UserName == "")
@@ -66,29 +67,29 @@ namespace StimulationAppAPI.Controllers
         }
         
         [AllowAnonymous, HttpPost, Route("Reset")]
-        public IActionResult RequestPasswordReset([FromHeader] string email)
+        public IActionResult RequestPasswordReset([FromHeader] string email) //return ExpirationTime or an error message (or not found)
         {
             var result = _loginService.RequestPasswordReset(email.ToLower());
             
             if (result == null) 
                 return NotFound();
-            var user = _userService.GetUserByMail(result.Email);
+            var user = _userService.GetUserByMail(result.UserLogin.User.Email);
             if (user == null) 
                 return NotFound();
             return SendMail(user, result.Token) ? Ok(result.ExpirationTime) : Problem("Failed to send email, please try again later");
         }
 
         [AllowAnonymous, HttpPost, Route("ResetWithToken")]
-        public IActionResult RequestPasswordToken([FromHeader] string resetToken)
+        public IActionResult RequestPasswordToken([FromHeader] string resetToken) //returns Bearer token
         {
             var result = _loginService.ResetPassword(resetToken);
             return result is null? NotFound("Token has expired or is incorrect"):Ok(GenerateJSONWebToken(result));
         }
 
-        [HttpPost, Route("ChangePassword/{email}")]
-        public IActionResult ChangePassword([FromHeader] string password, [FromRoute] string email)
+        [Authorize, HttpPost, Route("ChangePassword")]
+        public IActionResult ChangePassword([FromHeader] string password)//returns OK or Problem or Unauthorized
         {
-            var current = _loginService.GetCorrespondingLogin(_userService.GetUserByMail(email));//update password && check empty email
+            var current = _loginService.GetCorrespondingLogin(GetCurrentUser()!);//update password && check empty email
             if (current == null) return Unauthorized("You're not logged in correctly");
             current.Password = password;
             var result = _loginService.ChangePassword(current);
@@ -96,10 +97,9 @@ namespace StimulationAppAPI.Controllers
             return Ok();
         }
 
-        [HttpPost, Route("Add")]
-        public IActionResult AddUser([FromBody] NewAccount account)
+        [AllowAnonymous,HttpPost, Route("Add")]
+        public IActionResult AddUser([FromBody] NewAccount account) // problem or BadRequest or Token
         {
-
             if (!_userService.UsernameInUse(account.UserName))
             {
                 return Problem("Username is already in use.");
@@ -107,12 +107,12 @@ namespace StimulationAppAPI.Controllers
 
             if (account.Password == string.Empty)
             {
-                BadRequest("Password can not be empty.");
+                return BadRequest("Password can not be empty.");
             }
 
             if (account.FirstName == string.Empty || account.LastName == string.Empty)
             {
-                BadRequest("Name can not be empty.");
+                return BadRequest("Name can not be empty.");
             }
             if (account.Email is null || !account.Email.Contains('@'))
             {
@@ -125,20 +125,16 @@ namespace StimulationAppAPI.Controllers
                 FirstName = account.FirstName,
                 LastName = account.LastName,
                 Email = account.Email.ToLower()
-
             };
-            var login = new UserLogin
+            
+            user.Login = _loginService.AddLogin(new UserLogin { Password = account.Password,User = user });
+            if (user.UserName == "Admin" || user.UserName == "Temptica")
             {
-                UserName = account.UserName,
-                Password = account.Password
-            };
-
+                user.Role = "Admin";
+            }
             try
             {
                 _userService.AddUser(user);
-                _loginService.AddLogin(login);
-                GenerateJSONWebToken(user);
-                
                 return Ok(GenerateJSONWebToken(user));
             }
             catch (Exception e)
@@ -205,8 +201,12 @@ Thank you."
             }
             
         }
+        private User? GetCurrentUser()
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity) return null;
+            var userClaims = identity.Claims;
+            return _userService.GetUser(userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value);
 
-
-
+        }
     }
 }

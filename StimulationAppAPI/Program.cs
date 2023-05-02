@@ -5,10 +5,10 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using StimulationAppAPI;
 using StimulationAppAPI.BLL.Service;
 using StimulationAppAPI.Controllers;
 using StimulationAppAPI.DAL.Context;
+using StimulationAppAPI.DAL.Model;
 
 var builder = WebApplication.CreateBuilder(args);
 
