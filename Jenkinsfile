@@ -8,7 +8,8 @@ pipeline {
                     sh 'cd ./StimulationApp'
                 }
             }
-            stage('Build') {
+        }
+         stage('Build') {
                         steps {
                                 sh 'docker rmi temptica/stimulation-app-api'
                         }
