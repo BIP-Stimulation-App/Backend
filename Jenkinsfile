@@ -14,7 +14,7 @@ pipeline {
                 stage('Deploy') {
                         steps {
                             dir('StimulationApp'){
-                                sh 'docker-compose up -d'
+                                sh 'docker-compose up'
                             }
                         }
                 }
