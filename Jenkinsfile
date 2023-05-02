@@ -3,8 +3,7 @@ pipeline {
     stages {
         stage('Login') {
             steps {
-                sh 'ssh root@93.115.16.209'
-                sh 'cd StimulationApp'
+                sh 'ssh root@93.115.16.209'                
             }
         }
          stage('Build') {
@@ -14,7 +13,9 @@ pipeline {
                 }
                 stage('Deploy') {
                         steps {
+                            dir('StimulationApp'){
                                 sh 'docker compose build'
+                            }
                         }
                 }
         
