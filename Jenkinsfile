@@ -8,7 +8,7 @@ pipeline {
         }
          stage('Build') {
                         steps {
-                                sh 'docker rmi temptica/stimulation-app-api'
+                                sh 'docker rmi -f temptica/stimulation-app-api'
                         }
                 }
                 stage('Deploy') {
