@@ -4,7 +4,7 @@ pipeline {
         stage('Login') {
             steps {
                 sh 'ssh root@93.115.16.209'
-                sh 'cd ./StimulationApp'
+                sh 'cd StimulationApp/'
             }
         }
          stage('Build') {
