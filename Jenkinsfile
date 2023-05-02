@@ -14,7 +14,7 @@ pipeline {
                 stage('Deploy') {
                         steps {
                             dir('StimulationApp'){
-                                sh 'docker compose build'
+                                sh 'sudo docker compose build'
                             }
                         }
                 }
