@@ -3,8 +3,10 @@ pipeline {
     stages {
         stage('Login') {
             steps {
-                    sh 'ssh root@93.115.16.209 '
+                sshagent(credentials : ['97c0900f-d6d9-4eeb-abdb-83efb517dc89'] ) {
+                    sh 'ssh root@93.115.16.209'
                     sh 'cd ./StimulationApp'
+                }
             }
             stage('Build') {
                         steps {
