@@ -35,7 +35,12 @@ builder.Services.AddControllers(option =>
         option.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
     });
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+#if DEBUG
+builder.Services.AddDbContext<UserContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStringTesting"), b => b.MigrationsAssembly("StimulationAppAPI")));
+#else
 builder.Services.AddDbContext<UserContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString"), b => b.MigrationsAssembly("StimulationAppAPI")));
+
+#endif
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<UserController>();
@@ -124,7 +129,7 @@ using (var scope = app.Services.CreateScope())
     Console.WriteLine("starting db migration: ");
     if (context.Database.GetPendingMigrations().Any())
     {
-        //context.Database.Migrate();
+        context.Database.Migrate();
     }
 }
 app.Run();

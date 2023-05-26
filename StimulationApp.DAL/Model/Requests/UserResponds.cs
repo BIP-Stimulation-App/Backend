@@ -14,11 +14,13 @@ namespace StimulationAppAPI.DAL.Model.Requests
             FirstName = user.FirstName;
             LastName = user.LastName;
             Email = user.Email;
+            Anounymous = user.Anonymous;
         }
 
         public string UserName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
+        public bool Anounymous { get; set; }
     }
 }

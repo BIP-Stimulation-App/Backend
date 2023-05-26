@@ -23,11 +23,17 @@ namespace StimulationAppAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetMedications()//returns a NewMedication list
+        public IActionResult GetMedications()//returns a list of medications
         {
             var user = GetCurrentUser()!.UserName;
-            var newMedications = new List<NewMedication>();
-            newMedications = _medicationService.GetMedications(user).Select(u => new NewMedication(u)).ToList();
+            var newMedications = _medicationService.GetMedications(user).Select(u => new
+            {
+               id = u.Id,
+               name = u.Name,
+               description = u.Description,
+               frequency = u.Frequency,
+               time = u.Time
+            }).ToList();
             return Ok(newMedications);
         }
 
