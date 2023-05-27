@@ -41,12 +41,21 @@ builder.Services.AddDbContext<UserContext>(option => option.UseSqlServer(builder
 builder.Services.AddDbContext<UserContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString"), b => b.MigrationsAssembly("StimulationAppAPI")));
 
 #endif
+#region Services
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<MedicationService>();
+builder.Services.AddScoped<ExerciseService>();
+
+#endregion
+
+#region Controllers
 builder.Services.AddScoped<UserController>();
 builder.Services.AddScoped<LoginController>();
-builder.Services.AddScoped<MedicationService>();
 builder.Services.AddScoped<MedicationController>();
+builder.Services.AddScoped<ExerciseController>();
+
+#endregion
 
 EmailConfiguration.Email = builder.Configuration["EmailConfiguration:Email"];
 EmailConfiguration.Name = builder.Configuration["EmailConfiguration:Name"];
