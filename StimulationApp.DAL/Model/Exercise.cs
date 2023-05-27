@@ -26,7 +26,7 @@ namespace StimulationAppAPI.DAL.Model
         public TimeSpan Duration { get; set; } //is in seconds
         [Required, Column(TypeName = "smallint")]
         public Difficulty Difficulty { get; set; }
-        [Required, Column(TypeName = "uint")]
+        [Required, Column(TypeName = "int")]
         public int Reward { get; set; }
         [Required, Column(TypeName = "smallint")]
         public Category Category { get; set; }

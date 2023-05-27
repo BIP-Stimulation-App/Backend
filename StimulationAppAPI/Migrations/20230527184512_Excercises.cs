@@ -19,7 +19,7 @@ namespace StimulationAppAPI.Migrations
                     Description = table.Column<string>(type: "varchar(250)", nullable: false),
                     Duration = table.Column<TimeSpan>(type: "time", nullable: false),
                     Difficulty = table.Column<short>(type: "smallint", nullable: false),
-                    Reward = table.Column<int>(type: "uint", nullable: false),
+                    Reward = table.Column<int>(type: "int", nullable: false),
                     Category = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>

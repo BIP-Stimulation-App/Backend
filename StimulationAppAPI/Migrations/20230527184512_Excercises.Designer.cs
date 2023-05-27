@@ -12,7 +12,7 @@ using StimulationAppAPI.DAL.Context;
 namespace StimulationAppAPI.Migrations
 {
     [DbContext(typeof(UserContext))]
-    [Migration("20230527182631_Excercises")]
+    [Migration("20230527184512_Excercises")]
     partial class Excercises
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,7 +50,7 @@ namespace StimulationAppAPI.Migrations
                         .HasColumnType("varchar(50)");
 
                     b.Property<int>("Reward")
-                        .HasColumnType("uint");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

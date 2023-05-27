@@ -48,7 +48,7 @@ namespace StimulationAppAPI.Migrations
                         .HasColumnType("varchar(50)");
 
                     b.Property<int>("Reward")
-                        .HasColumnType("uint");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

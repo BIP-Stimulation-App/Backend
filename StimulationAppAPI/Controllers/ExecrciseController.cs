@@ -71,7 +71,7 @@ namespace StimulationAppAPI.Controllers
                 return BadRequest(e.Message);
             }
         }
-        [HttpGet("/{id}")]
+        [HttpGet("{id}")]
         public IActionResult GetExercise(int id)
         {
             try
