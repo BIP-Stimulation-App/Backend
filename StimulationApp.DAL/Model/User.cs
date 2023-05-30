@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using StimulationAppAPI.DAL.Model.Requests;
 
@@ -27,6 +28,8 @@ namespace StimulationAppAPI.DAL.Model
 
         [Required, Column(TypeName = "varchar(25)")]
         public string Role { get; set; } = null!;
+        [Required, Column(TypeName = "bit"), DefaultValue(false)]
+        public bool Anonymous { get; set; }
 
         public ICollection<Medication> Medications{ get; set; }
         public UserLogin Login { get; set; }

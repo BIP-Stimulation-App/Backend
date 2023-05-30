@@ -17,6 +17,8 @@ namespace StimulationAppAPI.BLL.Interface
         public User? AddUser(User user);
         public User? UpdateUser(User user);
         public User? UpdateEmail(string username, string email);
+        public User? UpdateUserName(string oldUsername, string newUsername);
+        public User? UpdatePrivacyMode(string username, bool anonymous);
 
 
     }

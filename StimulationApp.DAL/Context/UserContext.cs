@@ -21,6 +21,7 @@ namespace StimulationAppAPI.DAL.Context
         public DbSet<PasswordReset> PasswordResets { get; set; }
         public DbSet<Salt> Salts { get; set; }
         public DbSet<Medication> Medications { get; set; }
+        public DbSet<Exercise> Exercises { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
@@ -59,7 +60,9 @@ namespace StimulationAppAPI.DAL.Context
             modelBuilder.Entity<Salt>()
                 .HasKey(s => s.UserName);
 
-            modelBuilder.Entity<Medication>().HasKey(m => m.Id); ;
+            modelBuilder.Entity<Medication>().HasKey(m => m.Id);
+
+            modelBuilder.Entity<Exercise>();
             
             base.OnModelCreating(modelBuilder);
         }

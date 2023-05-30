@@ -38,6 +38,7 @@ namespace StimulationAppAPI.Controllers
         }
 
         [HttpPut]
+        [ProducesResponseType(typeof(UserResponds), 200), ProducesResponseType(404)]
         public IActionResult UpdateUser([FromBody]UserResponds updatedUser)
         {
             var oldUser = GetCurrentUser()!;
@@ -50,15 +51,16 @@ namespace StimulationAppAPI.Controllers
         }
 
         [HttpPut("UpdateEmail")]
-        public IActionResult UpdateEmail([FromQuery] string username, string email)
+        [ProducesResponseType(typeof(User),200), ProducesResponseType(404)]
+        public IActionResult UpdateEmail([FromHeader] string email)
         {
-            var result = _userService.UpdateEmail(username,email);
+            var result = _userService.UpdateEmail(GetCurrentUser().UserName,email);
             return result is null ? NotFound() : Ok(result);
         }
         #endregion
 
         [HttpGet("UsernameInUse/{username}")]
-        [AllowAnonymous]
+        [AllowAnonymous, ProducesResponseType(typeof(string),200)]
         public IActionResult UsernameInUse([FromRoute] string username)
         {
             return _userService.UsernameInUse(username)?Ok("Username is not in use."): Ok("Username is already in use.");
@@ -77,11 +79,29 @@ namespace StimulationAppAPI.Controllers
             return Ok();
         }
 
-        private User? GetCurrentUser()
+        [HttpPut("UpdateUsername")]
+        public IActionResult UpdateUsername([FromHeader] string newUsername)
         {
-            if (HttpContext.User.Identity is not ClaimsIdentity identity) return null;
+            var result = _userService.UpdateUserName(GetCurrentUser().UserName, newUsername);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
+
+        [HttpPut("UpdatePrivacy")]
+
+        public IActionResult UpdateNamePrivacy([FromHeader] bool anonymous)
+        {
+            var user = GetCurrentUser();
+            if (user.Anonymous == anonymous) return Ok();
+            var result = _userService.UpdatePrivacyMode(user.UserName,anonymous);
+            if (result != null) return Ok();
+            return BadRequest("something went wrong");
+        }
+        private User GetCurrentUser()
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity) return null!;
             var userClaims = identity.Claims;
-            return _userService.GetUser(userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value);
+            return _userService.GetUser(userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value!)!;
 
         }
 

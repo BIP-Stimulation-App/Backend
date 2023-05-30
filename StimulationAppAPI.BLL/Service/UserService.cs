@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using StimulationAppAPI.BLL.Interface;
 using StimulationAppAPI.DAL.Model;
 using StimulationAppAPI.DAL.Context;
+using System.IO.Pipes;
 
 namespace StimulationAppAPI.BLL.Service
 {
@@ -18,6 +19,7 @@ namespace StimulationAppAPI.BLL.Service
         {
             _context = context;
         }
+
         public User? GetUser(string firstname, string lastname)
         {
             return _context.Users.First(user => user.FirstName == firstname && user.LastName == lastname);
@@ -88,6 +90,40 @@ namespace StimulationAppAPI.BLL.Service
                 var user =_context.Users.Find(username);
                 if (user is null) return null;
                 user.Email = email;
+                _context.Update(user);
+                _context.SaveChanges();
+                return user;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public User? UpdateUserName(string oldUsername, string newUsername)
+        {
+            try
+            {
+                var user = _context.Users.Find(oldUsername);
+                if (user is null) return null;
+                _context.Users.Remove(user);
+                user.UserName = newUsername;
+                _context.Users.Add(user);
+                _context.SaveChanges();
+                return user;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        public User? UpdatePrivacyMode(string username,bool anonymous)
+        {
+            try
+            {
+                var user = _context.Users.Find(username);
+                if (user is null) return null;
+                user.Anonymous = anonymous;
                 _context.Update(user);
                 _context.SaveChanges();
                 return user;

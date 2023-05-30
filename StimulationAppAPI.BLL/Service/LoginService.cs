@@ -33,7 +33,8 @@ namespace StimulationAppAPI.BLL.Service
             var creds = _context.Logins.FirstOrDefault(l => l.UserName == login.UserName);
             if (creds is null)
             {
-                return new UserLogin()
+                Console.WriteLine($"username \"{login.UserName}\n was not found");
+                return new UserLogin
                 {
                     Password = "",
                     UserName = ""
@@ -46,6 +47,7 @@ namespace StimulationAppAPI.BLL.Service
             if (!correct)
             {
                 login.Password = "";
+                Console.WriteLine("Password is incorrect");
             }
             return creds;
         }
@@ -142,21 +144,7 @@ namespace StimulationAppAPI.BLL.Service
 
             for (int i = 0; i < 5; i++)
             {
-                int type = rng.Next(1, 4);
-                switch (type)
-                {
-                    //number
-                    case 1:
-                        token += rng.Next(0,10);
-                        continue;
-                    case 2://lowercase
-                        token += (char)('a' + rng.Next(0, 26));
-                        continue;
-                    default:
-                        token += (char)('A' + rng.Next(0, 26));
-
-                        continue;
-                }
+                token += rng.Next(0, 10);
             }
 
             return token;
