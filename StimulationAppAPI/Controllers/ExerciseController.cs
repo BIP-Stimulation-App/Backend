@@ -29,7 +29,7 @@ namespace StimulationAppAPI.Controllers
                 return BadRequest(e.Message);
             }
         }
-        [HttpPut]
+        [HttpPut, Authorize(Roles = "Admin")]
         public IActionResult UpdateExercise([FromBody] Exercise exercise)
         {
             try
@@ -43,7 +43,7 @@ namespace StimulationAppAPI.Controllers
                 return BadRequest(e.Message);
             }
         }
-        [HttpDelete, Authorize(Roles = "Admin")]
+        [HttpDelete("{id}"), Authorize(Roles = "Admin")]
         public IActionResult DeleteExercise(int id)
         {
             try
