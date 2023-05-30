@@ -177,13 +177,7 @@ namespace StimulationAppAPI.Controllers
 
                 email.Body = new TextPart(MimeKit.Text.TextFormat.Html)
                 {
-                    Text = $@"<b>Hello {user.FirstName}.</b>
-
-You've just requested a code for your password reset. Your Code is : {resetToken}.
-
-If you did not request this code, please ignore this email.
-
-Thank you."
+                    Text = $"<b>Hello {user.FirstName}.</b><br><br>You've just requested a code for your password reset. <br> Your Code is : <b>{resetToken}</b>.<br><br><br>If you did not request this code, please ignore this email.<br><br>Thank you."
                 };
 
                 using var smtp = new SmtpClient();

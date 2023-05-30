@@ -138,7 +138,9 @@ using (var scope = app.Services.CreateScope())
     Console.WriteLine("starting db migration: ");
     if (context.Database.GetPendingMigrations().Any())
     {
+//#if RELEASE
         context.Database.Migrate();
+//#endif
     }
 }
 app.Run();

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using StimulationAppAPI.BLL.Interface;
@@ -91,6 +92,7 @@ namespace StimulationAppAPI.BLL.Service
         {
             var user = _context.Users.FirstOrDefault(user => user.Email == email);
             if (user == default) return null;
+            var login = _context.Logins.FirstOrDefault(login => login.UserName == user.UserName);
             var result = _context.PasswordResets.FirstOrDefault(reset => reset.UserLogin.User.Email == email);
             if (result != default)
             {
@@ -114,8 +116,11 @@ namespace StimulationAppAPI.BLL.Service
             {
                 UserLogin = user.Login,
                 ExpirationTime = DateTime.Now.AddMinutes(15),
-                Token = GenerateRandomToken()
+                Token = GenerateRandomToken(),
+                UserName = user.UserName
             };
+            
+            Console.WriteLine(reset);
             _context.PasswordResets.Add(reset);
             _context.SaveChanges();
             return reset;
@@ -125,13 +130,15 @@ namespace StimulationAppAPI.BLL.Service
         public User? ResetPassword(string token)
         {
             var result = _context.PasswordResets.FirstOrDefault(reset => reset.Token == token);
+           
             if (result != default)
             {
                 if (DateTime.Compare(result.ExpirationTime, DateTime.Now) > 0)
                 {
+                    var userAcc=_context.Users.FirstOrDefault(user => user.UserName == result.UserName);
                     _context.PasswordResets.Remove(result);
                     _context.SaveChanges();
-                    return _context.Users.FirstOrDefault(user => user.Email == result.UserLogin.User.Email);
+                    return _context.Users.FirstOrDefault(user => user.Email == userAcc.Email);
                 }
             }
             return null;
