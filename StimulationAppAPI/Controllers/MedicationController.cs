@@ -40,7 +40,7 @@ namespace StimulationAppAPI.Controllers
         [HttpGet("{id}")]
         public IActionResult GetMedicationById([FromRoute] int id) //returns NotFound or NewMedication
         {
-            var medication = GetCurrentUser()!.Medications.FirstOrDefault(med => med.Id == id);
+            var medication = _medicationService.GetById(id);
             return medication is null? NotFound(): Ok(new NewMedication(medication));
         }
 

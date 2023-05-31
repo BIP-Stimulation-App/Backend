@@ -53,6 +53,7 @@ namespace StimulationAppAPI.Controllers
                     return Unauthorized("Password Incorrect");
                 }
                 var user = _loginService.GetCorrespondingUser(validation)!;
+                Console.WriteLine(user);
                 var tokenString = GenerateJSONWebToken(user);
                 return Ok(new { token = tokenString });
             }

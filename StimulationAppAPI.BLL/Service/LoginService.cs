@@ -47,7 +47,7 @@ namespace StimulationAppAPI.BLL.Service
 
             if (!correct)
             {
-                login.Password = "";
+                creds.Password = "";
                 Console.WriteLine("Password is incorrect");
             }
             return creds;

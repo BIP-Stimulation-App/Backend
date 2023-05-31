@@ -31,7 +31,7 @@ namespace StimulationAppAPI.DAL.Model
         [Column(TypeName = "varchar(100)")]
         public string Description { get; set; } = null!;
 
-        [Required, Column(TypeName = "DATE")]
+        [Required, Column(TypeName = "DATETIME")]
         public DateTime Time { get; set; } //exact day and time of next notification
         [Required, Column(TypeName = "smallint")]
         public MedicationFrequency Frequency { get; set; }
